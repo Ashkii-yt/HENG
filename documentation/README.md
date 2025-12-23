@@ -10,5 +10,3 @@ Files:
 💡 Quick start: open `USAGE.md` for step-by-step instructions and example commands.
 
 ---
-
-If you'd like, I can also add a short CONTRIBUTING guide, API examples in `examples/`, or a LICENSE file — tell me which you prefer.
