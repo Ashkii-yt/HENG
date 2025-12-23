@@ -1,0 +1,45 @@
+-- Example Ceng (CSS ENG) program
+-- English-like CSS syntax
+
+for body {
+  background: #f5f5f5
+  color: #333
+  font: Arial
+}
+
+for class header {
+  background: #007bff
+  color: white
+  size: 18pt
+  padding: 16px
+}
+
+for class button {
+  background: #28a745
+  color: white
+  padding: 8px 16px
+  size: 14pt
+  border: 1px #ccc
+}
+
+for class button when hover {
+  background: #218838
+}
+
+for ID main {
+  width: 80%
+  margin: 0 auto
+  padding: 20px
+}
+
+for class container {
+  display: flex
+  flex: column
+  width: 100%
+}
+
+for input {
+  padding: 8px
+  border: 1px #ddd
+  size: 14px
+}

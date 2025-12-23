@@ -1,0 +1,192 @@
+@raw
+// Simple bounce simulator (single-file). No libraries.
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(innerWidth * dpr);
+  canvas.height = Math.floor(innerHeight * dpr);
+  canvas.style.width = innerWidth + 'px';
+  canvas.style.height = innerHeight + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener('resize', resize);
+resize();
+
+const gravityInput = document.getElementById('gravity');
+const gval = document.getElementById('gval');
+const restInput = document.getElementById('restitution');
+const rval = document.getElementById('rval');
+const frictionInput = document.getElementById('friction');
+const fval = document.getElementById('fval');
+
+function updateUI() {
+  gval.textContent = parseFloat(gravityInput.value).toFixed(2);
+  rval.textContent = parseFloat(restInput.value).toFixed(2);
+  fval.textContent = parseFloat(frictionInput.value).toFixed(3);
+}
+gravityInput.addEventListener('input', updateUI);
+restInput.addEventListener('input', updateUI);
+frictionInput.addEventListener('input', updateUI);
+updateUI();
+
+class Ball {
+  constructor(x,y,r=20, color=null) {
+    this.x = x;
+    this.y = y;
+    this.vx = (Math.random()-0.5) * 300;
+    this.vy = (Math.random()-0.5) * 50;
+    this.r = r;
+    this.mass = r * 0.1;
+    this.color = color || Ball.randomColor();
+  }
+  static randomColor() {
+    const h = Math.floor(Math.random() * 360);
+    return `hsl(${h} 70% 60%)`;
+  }
+  draw(ctx) {
+    ctx.beginPath();
+    ctx.fillStyle = this.color;
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.arc(this.x - this.r*0.35, this.y - this.r*0.45, this.r*0.35, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+const balls = [];
+for (let i=0;i<5;i++) {
+  balls.push(new Ball(100 + i*80, 80 + Math.random()*40, 18 + Math.random()*14));
+}
+
+let gravity = parseFloat(gravityInput.value) * 1000;
+let restitution = parseFloat(restInput.value);
+let friction = parseFloat(frictionInput.value);
+
+function readParams() {
+  gravity = parseFloat(gravityInput.value) * 1000;
+  restitution = parseFloat(restInput.value);
+  friction = parseFloat(frictionInput.value);
+}
+
+function step(dt) {
+  readParams();
+  const w = innerWidth;
+  const h = innerHeight;
+
+  for (let b of balls) {
+    b.vy += gravity * dt;
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+
+    if (b.x - b.r < 0) {
+      b.x = b.r;
+      b.vx = -b.vx * restitution;
+    } else if (b.x + b.r > w) {
+      b.x = w - b.r;
+      b.vx = -b.vx * restitution;
+    }
+
+    if (b.y + b.r > h) {
+      b.y = h - b.r;
+      if (Math.abs(b.vy) < 300) {
+        b.vy = -b.vy * restitution;
+      } else {
+        b.vy = -b.vy * restitution;
+      }
+      b.vx *= (1 - friction*60*dt);
+      if (Math.abs(b.vx) < 2) b.vx = 0;
+      if (b.y + b.r > h) b.y = h - b.r;
+    }
+
+    if (b.y - b.r < 0) {
+      b.y = b.r;
+      b.vy = -b.vy * restitution;
+    }
+  }
+
+  for (let i = 0; i < balls.length; i++) {
+    for (let j = i+1; j < balls.length; j++) {
+      const A = balls[i], B = balls[j];
+      const dx = B.x - A.x, dy = B.y - A.y;
+      const dist = Math.hypot(dx, dy);
+      const minDist = A.r + B.r;
+      if (dist > 0 && dist < minDist) {
+        const overlap = minDist - dist;
+        const nx = dx / dist, ny = dy / dist;
+        const totalMass = A.mass + B.mass;
+        A.x -= nx * (overlap * (B.mass / totalMass));
+        A.y -= ny * (overlap * (B.mass / totalMass));
+        B.x += nx * (overlap * (A.mass / totalMass));
+        B.y += ny * (overlap * (A.mass / totalMass));
+        const rvx = B.vx - A.vx, rvy = B.vy - A.vy;
+        const relVelAlongNormal = rvx*nx + rvy*ny;
+        if (relVelAlongNormal > 0) continue;
+        const e = Math.min(1, Math.max(0, (restitution)));
+        const jimp = -(1 + e) * relVelAlongNormal / (1/A.mass + 1/B.mass);
+        const impulseX = jimp * nx;
+        const impulseY = jimp * ny;
+        A.vx -= impulseX / A.mass;
+        A.vy -= impulseY / A.mass;
+        B.vx += impulseX / B.mass;
+        B.vy += impulseY / B.mass;
+      }
+    }
+  }
+}
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.033, (now - last) / 1000);
+  last = now;
+  step(dt);
+
+  ctx.clearRect(0,0,innerWidth,innerHeight);
+
+  const g = ctx.createLinearGradient(0,0,0,innerHeight);
+  g.addColorStop(0,'#0b1220');
+  g.addColorStop(1,'#071018');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,innerWidth,innerHeight);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, innerHeight - 0.5);
+  ctx.lineTo(innerWidth, innerHeight - 0.5);
+  ctx.stroke();
+
+  for (let b of balls) b.draw(ctx);
+
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+canvas.addEventListener('pointerdown', (ev) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = ev.clientX - rect.left;
+  const y = ev.clientY - rect.top;
+  const r = 12 + Math.random()*30;
+  const nb = new Ball(x,y,r);
+  nb.vy = -200 - Math.random()*300;
+  nb.vx = (Math.random()-0.5) * 400;
+  balls.push(nb);
+});
+
+addEventListener('keydown', (e) => {
+  if (e.key === 'c' || e.key === 'C') {
+    balls.length = 0;
+  } else if (e.key === 'g' || e.key === 'G') {
+    gravityInput.value = (Math.random()*1.6+0.05).toFixed(2);
+    updateUI();
+  } else if (e.key === 'r' || e.key === 'R') {
+    restInput.value = (Math.random()*0.6 + 0.3).toFixed(2);
+    updateUI();
+  }
+});
+
+canvas.style.touchAction = 'none';
+console.log('Simple Bounce Simulator — click to add balls. Press C to clear.');

@@ -1,0 +1,30 @@
+heng_verson=1
+HTML_verson=5 --could use docktype
+import js from [yourjsfile].js
+import ts form [yourtsfile].ts
+import css form [yourcssfile].js
+import ceng from [yourcengfile].ceng --new language like heng but for css [any thing after a "--" is a comment till the end of the line]
+
+unrecnised text are ignored so this is basicly a comment
+
+function setup_head
+    tite "example page"
+
+function create_text
+  add heading "Welcome to ENG Language" with ceng and ts
+  add paragraph "This is your first ENG program!" with css
+  add paragraph "This is also made with ceng" with ceng
+  add paragraph "ENG makes HTML writing fun and easy." with css and js
+
+function create_buttons
+  add button "Click Me" with js and css
+  add button "Click Me" with ts and ceng
+
+script
+    --seng script type goes hear this is supose to be supper basic 
+
+cscript with js
+  --cscript tag is used to write custem scripts so basicly js or ts depending on if you chose "with js" or "with ts"
+
+cstyle
+  --cstyle tag is used to write custem style in css

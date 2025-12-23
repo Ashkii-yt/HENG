@@ -1,0 +1,10 @@
+create page
+  add heading "About ENG"
+  add paragraph "ENG is a revolutionary programming language designed to make HTML writing more intuitive."
+  add heading "Features"
+  add paragraph "Simple English-like syntax"
+  add paragraph "Automatic HTML generation"
+  add paragraph "Web-based IDE"
+  add heading "Getting Started"
+  add paragraph "Use the keywords: create, add, page, heading, paragraph, button, link, image, and more!"
+  add button "Learn More"

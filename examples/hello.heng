@@ -1,0 +1,5 @@
+create page
+  add heading "Welcome to ENG Language"
+  add paragraph "This is your first ENG program!"
+  add button "Click Me"
+  add paragraph "ENG makes HTML writing fun and easy."

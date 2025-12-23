@@ -1,0 +1,8 @@
+heng_verson=1
+import ceng from [bounce].ceng
+import seng from [bounce].seng
+
+add div "<div id=\"ui\">\n  <strong>Simple Bounce Sim</strong><br>\n  Gravity: <input id=\"gravity\" type=\"range\" min=\"0\" max=\"2\" step=\"0.01\" value=\"0.6\">\n  <span id=\"gval\">0.60</span><br>\n  Restitution: <input id=\"restitution\" type=\"range\" min=\"0\" max=\"1\" step=\"0.01\" value=\"0.85\">\n  <span id=\"rval\">0.85</span><br>\n  Friction (horizontal): <input id=\"friction\" type=\"range\" min=\"0\" max=\"0.02\" step=\"0.001\" value=\"0.005\">\n  <span id=\"fval\">0.005</span>\n  <div class=\"muted\">Click to add a ball. Press C to clear.</div>\n</div>\n<canvas id=\"c\"></canvas>"
+
+function setup_head
+  tite "Simple Bounce Simulator"
