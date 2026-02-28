@@ -18,6 +18,24 @@ function compileSeng(inputPath) {
 
     // Preprocess some English macros to make seng more expressive
     let pre = source;
+    // normalize common typos/alternate words to canonical keywords
+    const normalize = (line) => {
+      return line
+        .replace(/\bfunction\b/i, 'function') // just ensure case
+        .replace(/\bfonction\b/i, 'function')
+        .replace(/\bfuncion\b/i, 'function')
+        .replace(/\bvaribal\b/i, 'var')
+        .replace(/\bvarible\b/i, 'var')
+        .replace(/\bvarible\b/i, 'var')
+        .replace(/\blooping\b/i, 'loop')
+        .replace(/\bwheen\b/i, 'when')
+        .replace(/\bwhn\b/i, 'when')
+        .replace(/\belsee\b/i, 'else')
+        .replace(/\bnone\b/i, 'null');
+    };
+    // apply normalization line-by-line before further processing
+    pre = pre.split('\n').map(normalize).join('\n');
+
     // DOM selectors
     pre = pre.replace(/get element by id\s+["']([^"']+)["']/gi, `document.getElementById("$1")`);
     pre = pre.replace(/get element by selector\s+["']([^"']+)["']/gi, `document.querySelector("$1")`);
@@ -59,11 +77,13 @@ function compileSeng(inputPath) {
         continue;
       }
 
-      // Function declaration: 'function name' or 'function name (a, b)'
-      const fnMatch = line.match(/^function\s+(\w+)(?:\s*\(([^)]*)\))?/i);
+      // Function declaration: 'function name', optionally with params either in parens or space-separated
+      const fnMatch = line.match(/^function\s+(\w+)(?:\s*\(([^)]*)\)|\s+([^:]+))?\s*:??/i);
       if (fnMatch) {
         const name = fnMatch[1];
-        const params = (fnMatch[2] || '').trim();
+        let params = '';
+        if (fnMatch[2] !== undefined && fnMatch[2] !== null) params = fnMatch[2].trim();
+        else if (fnMatch[3] !== undefined && fnMatch[3] !== null) params = fnMatch[3].trim();
         // close any open blocks before starting a new top-level function
         while (blockStack.length) {
           const closed = popBlock();
@@ -128,18 +148,19 @@ function compileSeng(inputPath) {
         continue;
       }
 
-      // when (cond) -> if (cond) { ... }
-      const whenMatch = line.match(/^when\s*\((.+)\)/i);
+      // when (cond) or when cond -> if (cond) { ... }
+      let whenMatch = line.match(/^when\s*(?:\((.+)\)|(.+?))\s*:??$/i);
       if (whenMatch) {
-        const cond = whenMatch[1].trim();
+        let cond = (whenMatch[1] || whenMatch[2] || '').trim();
+        // TODO: additional null-check patterns could be handled here if needed
         output += `if (${cond}) {\n`;
         pushBlock('if');
         i++;
         continue;
       }
 
-      // else
-      if (/^else$/i.test(line)) {
+      // else (allow optional colon)
+      if (/^else\s*:??$/i.test(line)) {
         if (blockStack.length && blockStack[blockStack.length - 1] === 'if') {
           output += `} else {\n`;
           popBlock();
@@ -151,10 +172,12 @@ function compileSeng(inputPath) {
         continue;
       }
 
-      // loop (cond) -> while (cond) {
-      const loopMatch = line.match(/^loop\s*\((.+)\)/i);
+      // loop (cond) or loop cond -> while (cond) {
+      let loopMatch = line.match(/^loop\s*(?:\((.+)\)|(.+?))\s*:??$/i);
       if (loopMatch) {
-        const cond = loopMatch[1].trim();
+        let cond = (loopMatch[1] || loopMatch[2] || '').trim();
+        cond = cond.replace(/\bis\s+null\b/i, '== null');
+        cond = cond.replace(/\beq\s+null\b/i, '== null');
         output += `while (${cond}) {\n`;
         pushBlock('loop');
         i++;
@@ -171,20 +194,29 @@ function compileSeng(inputPath) {
         continue;
       }
 
-      // log/print (handle before generic call)
-      const logMatch = line.match(/^(?:log|print)\s*\((.+)\)\s*;?$/i);
+      // log/print (handle before generic call) – allow `log x` or `log(x)`
+      // capture anything after the keyword, including a single char
+      const logMatch = line.match(/^(?:log|print)\s*(?:\((.+)\)|(.+))\s*;?$/i);
       if (logMatch) {
-        output += `console.log(${logMatch[1].trim()});\n`;
+        const msg = logMatch[1] ? logMatch[1].trim() : logMatch[2].trim();
+        output += `console.log(${msg});\n`;
         i++;
         continue;
       }
 
-      // function call: 'call name()' or 'name()'
-      const callMatch = line.match(/^(?:call\s+)?(\w+)\s*\((.*)\)\s*;?$/i);
+      // function call: 'call name()' or 'name()' or simply 'name' for python-style
+      let callMatch = line.match(/^(?:call\s+)?(\w+)\s*\((.*)\)\s*;?$/i);
       if (callMatch) {
         const name = callMatch[1];
         const args = callMatch[2] || '';
         output += `${name}(${args});\n`;
+        i++;
+        continue;
+      }
+      // bare word call
+      const bareMatch = line.match(/^[a-zA-Z_]\w*$/);
+      if (bareMatch) {
+        output += `${line}();\n`;
         i++;
         continue;
       }

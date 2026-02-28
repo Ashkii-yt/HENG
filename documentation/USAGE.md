@@ -5,8 +5,8 @@ This document explains how to use the project tools to compile `.heng`, `.seng`,
 ## Summary of components
 
 - `heng` (ENG) — the main language. Files use `.heng` and compile to `.html` via the main compiler in `compiler/compiler.js`.
-- `seng` — an English-flavored JS DSL that compiles to `.js` (compiler: `seng/compiler.js`). Supports some English macros and `@raw` passthrough.
-- `ceng` — an English-flavored CSS DSL that compiles to `.css` (compiler: `ceng/compiler.js`). Also supports `@raw` passthrough.
+- `seng` — an English-flavored JS DSL that compiles to `.js` (compiler: `seng/compiler.js`). Syntax has been updated to feel more like Python: parentheses around conditions and calls are optional, colons (`:`) can terminate block-starting lines, and simple bare-word calls (`foo`) are allowed. Keywords are case-insensitive, minor typos such as `funcion`, `varibal`, `wheen` are auto-corrected, and `none` is treated as `null`. Supports some English macros and `@raw` passthrough.
+- `ceng` — an English-flavored CSS DSL that compiles to `.css` (compiler: `ceng/compiler.js`). Braces are now optional; selector lines may be followed by indented properties without `{}`/`}`, and the compiler automatically inserts them. Keywords and selectors are case-insensitive, and the parser tolerates common typos in property names (`colr`, `backgroun`, `dispaly`, etc.). Also supports `@raw` passthrough.
 
 ## Requirements
 

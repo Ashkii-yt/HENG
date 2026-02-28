@@ -2,8 +2,8 @@
 
 This workspace contains a simple toy language `heng` (ENG), plus two English-like DSLs:
 
-- `seng` — English-like JavaScript (translates to `.js`)
-- `ceng` — English-like CSS (translates to `.css`)
+- `seng` — English-like JavaScript (translates to `.js`); syntax now leans more toward Python, with optional parentheses and colon-based blocks. Keywords are case‑insensitive and common misspellings are auto‑corrected; null/none variants are tolerated.
+- `ceng` — English-like CSS (translates to `.css`); braces are optional and blocks are inferred from indentation
 
 How to build the example bounce page:
 

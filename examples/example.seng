@@ -1,26 +1,29 @@
 -- Example Seng (Script ENG) program
--- English-like JavaScript syntax
-
-function setup --no brackets for no parms
-  var message = "Hello from Seng!"
-  log (message)
+-- English-like JavaScript and python syntax
+-- This file includes a few deliberate typos and variations:
+--   "funcion" -> function, "varibal" -> var, "when" vs "wheen", etc.
 
 
-function add_numbers (a, b) --brackets for parms
-  return a + b
+funcion setup   -- typo 'funcion' instead of function
+    varibal message = "Hello from Seng!"  -- 'varibal' treated as var
+    log message
+
+
+function add_numbers a, b
+    return a + b
 
 function count_to_ten
-  var i = 0 --var and varibal are both accepted
-  loop (i < 10)
-    log (i) --log and print are both accepted
-    i = i + 1
+    var i = 0 --var and varibal are both accepted
+    loop i < 10 -- normal condition
+        log i --log and print are both accepted
+        i = i + 1
 
 
-function check_positive(num)
-    when (num > 0)
-        log ("positive")
+function check_positive num
+    when num > 0
+        log "positive"
     else
-        log ("not positive")
+        log "not positive"
 
 -- call setup
-call setup() --it is also fine without useing "call" so it could just be "setup()"
+setup

@@ -5,7 +5,7 @@ import ts form [yourtsfile].ts
 import css form [yourcssfile].js
 import ceng from [yourcengfile].ceng --new language like heng but for css [any thing after a "--" is a comment till the end of the line]
 
-unrecnised text are ignored so this is basicly a comment
+unreconised text are ignored so this is basicly a comment
 
 function setup_head
     tite "example page"

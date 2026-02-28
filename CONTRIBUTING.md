@@ -1,5 +1,5 @@
 # Contributing
-This is a solo project made by SudoBlank on github.
+This is a dual project made by SudoBlank and Ashkii-yt on github.
 
 Thanks for your interest in contributing to this toy language project! The repository is simple, but the following guidelines will keep contributions smooth.
 
